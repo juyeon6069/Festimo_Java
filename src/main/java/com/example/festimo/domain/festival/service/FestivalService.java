@@ -53,6 +53,8 @@ public class FestivalService {
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 
+    private final ModelMapper modelMapper = new ModelMapper();
+
     @Scheduled(cron = "0 0 0 * * ?")
     public void scheduleRefreshEvents() {
         refreshEvents();
@@ -220,7 +222,7 @@ public class FestivalService {
 
     @Transactional
     public void insert(FestivalTO to){
-        ModelMapper modelMapper = new ModelMapper();
+//        ModelMapper modelMapper = new ModelMapper();
         Festival festival = modelMapper.map(to, Festival.class);
 
         festivalRepository.save(festival);
@@ -229,7 +231,7 @@ public class FestivalService {
 
     public Page<FestivalTO> findPaginated(Pageable pageable) {
         Page<Festival> festivals = festivalRepository.findAll(pageable);
-        ModelMapper modelMapper = new ModelMapper();
+//        ModelMapper modelMapper = new ModelMapper();
         Page<FestivalTO> page = festivals.map(festival -> modelMapper.map(festival, FestivalTO.class));
         return page;
     }
@@ -289,7 +291,7 @@ public Page<FestivalTO> findPaginatedWithCache(Pageable pageable) {
         if (festival == null) {
             return null;
         }
-        ModelMapper modelMapper = new ModelMapper();
+//        ModelMapper modelMapper = new ModelMapper();
         FestivalTO to = modelMapper.map(festival, FestivalTO.class);
 
         int contentId = festival.getContentId();
@@ -303,7 +305,7 @@ public Page<FestivalTO> findPaginatedWithCache(Pageable pageable) {
     public Page<FestivalTO> search(String keyword, Pageable pageable) {
         Page<Festival> festivalPage = festivalRepository.findByTitleContainingIgnoreCase(keyword, pageable);
 
-        ModelMapper modelMapper = new ModelMapper();
+//        ModelMapper modelMapper = new ModelMapper();
         Page<FestivalTO> page = festivalPage.map(festival -> modelMapper.map(festival, FestivalTO.class));
         return page;
     }
@@ -313,7 +315,7 @@ public Page<FestivalTO> findPaginatedWithCache(Pageable pageable) {
         LocalDate firstDayOfMonth = yearMonth.atDay(1);
         LocalDate lastDayOfMonth = yearMonth.atEndOfMonth();
 
-        ModelMapper modelMapper = new ModelMapper();
+//        ModelMapper modelMapper = new ModelMapper();
         Page<Festival> festivals = festivalRepository.findByMonth(firstDayOfMonth, lastDayOfMonth, pageable);
         Page<FestivalTO> page = festivals.map(festival -> new ModelMapper().map(festival, FestivalTO.class));
 
@@ -323,7 +325,7 @@ public Page<FestivalTO> findPaginatedWithCache(Pageable pageable) {
     public Page<FestivalTO> filterByRegion(String region, Pageable pageable) {
         Page<Festival> festivals = festivalRepository.findByAddressContainingIgnoreCase(region, pageable);
 
-        ModelMapper modelMapper = new ModelMapper();
+//        ModelMapper modelMapper = new ModelMapper();
         Page<FestivalTO> page = festivals.map(festival -> modelMapper.map(festival, FestivalTO.class));
         return page;
     }
