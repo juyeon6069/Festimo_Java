@@ -156,7 +156,13 @@ public class FestivalService {
                     festivalTO.setImage((String) item.get("firstimage"));
                     festivalTO.setXCoordinate(Float.parseFloat((String) item.get("mapx")));
                     festivalTO.setYCoordinate(Float.parseFloat((String) item.get("mapy")));
-                    festivalTO.setPhone((String) item.get("tel"));
+
+                    String phoneRaw = (String) item.get("tel");
+                    String phoneClean = phoneRaw.replaceAll("<[^>]*>", "");
+                    Pattern p = Pattern.compile("\\d{2,4}[- ]?\\d{3,4}[- ]?\\d{4}");
+                    Matcher m = p.matcher(phoneClean);
+                    String phoneNumber = m.find() ? m.group() : "";
+                    festivalTO.setPhone(phoneNumber);
 
                     festivalTO.setContentId(Integer.parseInt((String) item.get("contentid")));
 
