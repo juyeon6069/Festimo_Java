@@ -323,7 +323,7 @@ public Page<FestivalTO> findPaginatedWithCache(Pageable pageable) {
     }
 
     public Page<FestivalTO> filterByRegion(String region, Pageable pageable) {
-        Page<Festival> festivals = festivalRepository.findByAddressContainingIgnoreCase(region, pageable);
+        Page<Festival> festivals = festivalRepository.findByRegion(region, pageable);
 
 //        ModelMapper modelMapper = new ModelMapper();
         Page<FestivalTO> page = festivals.map(festival -> modelMapper.map(festival, FestivalTO.class));

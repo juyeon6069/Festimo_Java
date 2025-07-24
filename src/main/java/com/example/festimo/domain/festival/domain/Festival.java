@@ -16,7 +16,8 @@ import java.time.LocalDate;
 @Table(
         name = "festival",
         indexes = {
-                @Index(name = "idx_festival_date", columnList = "start_date, end_date")
+                @Index(name = "idx_festival_date", columnList = "start_date, end_date"),
+                @Index(name = "idx_festival_address", columnList = "address")
         }
 )
 public class Festival {
