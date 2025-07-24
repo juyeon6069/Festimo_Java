@@ -1,5 +1,6 @@
 package com.example.festimo.domain.festival.service;
 
+import com.example.festimo.domain.festival.document.FestivalDocument;
 import com.example.festimo.domain.festival.domain.Festival;
 import com.example.festimo.domain.festival.dto.FestivalDetailsTO;
 import com.example.festimo.domain.festival.dto.FestivalTO;
@@ -17,6 +18,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.SearchHit;
+import org.springframework.data.elasticsearch.core.query.Criteria;
+import org.springframework.data.elasticsearch.core.query.CriteriaQuery;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -34,6 +39,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -52,6 +59,8 @@ public class FestivalService {
 
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
+    @Autowired
+    private ElasticsearchOperations elasticsearchOperations;
 
     private final ModelMapper modelMapper = new ModelMapper();
 
@@ -75,6 +84,7 @@ public class FestivalService {
             for (FestivalTO event : events) {
                 insert(event);
             }
+            syncFestivalData();
         } catch (Exception e) {
             System.out.println("refreshEvents 도중 에러 발생: " + e.getMessage());
         }
@@ -305,9 +315,35 @@ public Page<FestivalTO> findPaginatedWithCache(Pageable pageable) {
     public Page<FestivalTO> search(String keyword, Pageable pageable) {
         Page<Festival> festivalPage = festivalRepository.findByTitleContainingIgnoreCase(keyword, pageable);
 
-//        ModelMapper modelMapper = new ModelMapper();
-        Page<FestivalTO> page = festivalPage.map(festival -> modelMapper.map(festival, FestivalTO.class));
-        return page;
+        Criteria criteria = new Criteria("title").contains(keyword).boost(2.0f)
+                .or(new Criteria("description").matches(keyword).boost(1.0f))
+                .or(new Criteria("location").matches(keyword).boost(1.0f));
+
+        CriteriaQuery query = new CriteriaQuery(criteria);
+        query.setPageable(pageable);
+
+        List<SearchHit<FestivalDocument>> searchHits = elasticsearchOperations.search(query, FestivalDocument.class).getSearchHits();
+
+        List<FestivalTO> festivalTOList = searchHits.stream()
+                .map(hit -> modelMapper.map(hit.getContent(), FestivalTO.class))
+                .collect(Collectors.toList());
+
+        long totalHits = elasticsearchOperations.count(query, FestivalDocument.class);
+
+        return new PageImpl<>(festivalTOList, pageable, totalHits);
+    }
+
+    @Transactional
+    public void syncFestivalData() {
+        List<Festival> festivals = festivalRepository.findAll();
+
+        if (!festivals.isEmpty()) {
+            List<FestivalDocument> festivalDocuments = festivals.stream()
+                    .map(festival -> modelMapper.map(festival, FestivalDocument.class))
+                    .collect(Collectors.toList());
+
+            elasticsearchOperations.save(festivalDocuments);
+        }
     }
 
     public Page<FestivalTO> filterByMonth(int year, int month, Pageable pageable) {

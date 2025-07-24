@@ -62,6 +62,9 @@ dependencies {
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.2'
     // 로깅
     implementation 'org.slf4j:slf4j-api'
+    // Elasticsearch
+    implementation "org.springframework.boot:spring-boot-starter-data-elasticsearch"
+    implementation 'org.springframework.data:spring-data-elasticsearch:5.4.2'
 }
 
 tasks.named('test') {
