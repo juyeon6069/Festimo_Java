@@ -322,9 +322,7 @@ public Page<FestivalTO> findPaginatedWithCache(Pageable pageable) {
         Page<Festival> festivalPage = festivalRepository.findByTitleContainingIgnoreCase(keyword, pageable);
 
         Criteria criteria = new Criteria("title").contains(keyword).boost(2.0f)
-                .or(new Criteria("description").matches(keyword).boost(1.0f))
-                .or(new Criteria("location").matches(keyword).boost(1.0f));
-
+                .or(new Criteria("address").matches(keyword).boost(1.0f));
         CriteriaQuery query = new CriteriaQuery(criteria);
         query.setPageable(pageable);
 
