@@ -16,8 +16,13 @@ public interface FestivalRepository extends JpaRepository<Festival, String> {
     Page<Festival> findByTitleContainingIgnoreCase(String keyword, Pageable pageable);
     Page<Festival> findByAddressContainingIgnoreCase(String region, Pageable pageable);
 
-    @Query("SELECT f FROM Festival f WHERE " +
-            "f.startDate <= :endDate AND f.endDate >= :startDate")
+    @Query(
+            value = """
+                SELECT * FROM festival
+                WHERE start_date <= :endDate AND end_date >= :startDate
+            """,
+            nativeQuery = true
+    )
     Page<Festival> findByMonth(@Param("startDate") LocalDate startDate,
                                @Param("endDate") LocalDate endDate,
                                Pageable pageable);
