@@ -238,16 +238,13 @@ public class FestivalService {
 
     @Transactional
     public void insert(FestivalTO to){
-//        ModelMapper modelMapper = new ModelMapper();
         Festival festival = modelMapper.map(to, Festival.class);
-
         festivalRepository.save(festival);
     }
 
 
     public Page<FestivalTO> findPaginated(Pageable pageable) {
         Page<Festival> festivals = festivalRepository.findAll(pageable);
-//        ModelMapper modelMapper = new ModelMapper();
         Page<FestivalTO> page = festivals.map(festival -> modelMapper.map(festival, FestivalTO.class));
         return page;
     }
@@ -307,12 +304,11 @@ public Page<FestivalTO> findPaginatedWithCache(Pageable pageable) {
         if (festival == null) {
             return null;
         }
-//        ModelMapper modelMapper = new ModelMapper();
+
         FestivalTO to = modelMapper.map(festival, FestivalTO.class);
-
         int contentId = festival.getContentId();
-        FestivalDetailsTO details = getFestivalDescription(contentId);
 
+        FestivalDetailsTO details = getFestivalDescription(contentId);
         to.setFestivalDetails(details);
 
         return to;
@@ -355,7 +351,6 @@ public Page<FestivalTO> findPaginatedWithCache(Pageable pageable) {
         LocalDate firstDayOfMonth = yearMonth.atDay(1);
         LocalDate lastDayOfMonth = yearMonth.atEndOfMonth();
 
-//        ModelMapper modelMapper = new ModelMapper();
         Page<Festival> festivals = festivalRepository.findByMonth(firstDayOfMonth, lastDayOfMonth, pageable);
         Page<FestivalTO> page = festivals.map(festival -> new ModelMapper().map(festival, FestivalTO.class));
 
@@ -364,8 +359,6 @@ public Page<FestivalTO> findPaginatedWithCache(Pageable pageable) {
 
     public Page<FestivalTO> filterByRegion(String region, Pageable pageable) {
         Page<Festival> festivals = festivalRepository.findByRegion(region, pageable);
-
-//        ModelMapper modelMapper = new ModelMapper();
         Page<FestivalTO> page = festivals.map(festival -> modelMapper.map(festival, FestivalTO.class));
         return page;
     }

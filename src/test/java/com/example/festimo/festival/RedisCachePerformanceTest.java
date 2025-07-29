@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
@@ -34,7 +35,6 @@ public class RedisCachePerformanceTest {
     @Autowired
     private FestivalRepository festivalRepository;
 
-//    @Autowired
     private ModelMapper modelMapper;
 
     @BeforeEach
@@ -65,6 +65,7 @@ public class RedisCachePerformanceTest {
     }
 
     @Test
+    @DisplayName("Redis 캐싱 성능 테스트 측정")
     public void testRedisCacheEffectiveness() {
         Pageable pageable = PageRequest.of(0, 10);
         int iterations = 10;
